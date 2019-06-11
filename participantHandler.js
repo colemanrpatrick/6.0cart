@@ -2,7 +2,8 @@ var container = document.getElementById("participants"),
     participant = document.getElementsByClassName("participant"),
     carrier = document.getElementById("carrierInput");
 
-var participantsParsed,
+var participantsValue,
+    participantsArr,
     num;
 
 
@@ -11,8 +12,10 @@ function getParticipants() {
   'use strict';
 
   var carrier_value = localStorage.getItem("carrierValue");
-  participantsParsed = JSON.parse(carrier_value);
-  console.log(participantsParsed);
+
+  // console.log("getValue",carrier_value)
+
+  participantsValue = carrier_value;
 
 };
 
@@ -22,49 +25,51 @@ function showParticipants(){
 
   var count;
 
-  var parsedNames;
-  var parsedAges;
-  var parsedMarkup;
-
-  var jsonNameArray = [];
-  var jsonAgeArray = [];
-
-  for(num in participantsParsed){
-
-    parsedMarkup = participantsParsed[num].markup;
-    parsedNames = participantsParsed[num].name;
-    parsedAges = participantsParsed[num].age;
-
-    jsonNameArray.push(parsedNames);
-    jsonAgeArray.push(parsedAges);
-
-  }
-
-  if(participantsParsed !== null){
+  if(participantsValue !== null){
 
     container.innerHTML = "";
-    count = Object.keys(participantsParsed).length;
-    // console.log("number of participants:", count);
-    for (var i = 0; i < count; i++) {
-      container.innerHTML += "" + parsedMarkup + "";
-    }
+
+    participants = participantsValue.split(",");
+
+    participantsArr = [];
+
+    participants.forEach(function(item,index){
+
+      var newItem = item.split('|');
+
+      participantsArr.push(newItem);
+
+      createParticipant();
+
+    })
 
     var nameInput = document.querySelectorAll(".input-name");
     var ageInput = document.querySelectorAll(".input-age");
 
     for (var i = 0; i < nameInput.length; i++) {
-      nameInput[i].value = "" + jsonNameArray[i] + "";
-    }
 
-    for (var i = 0; i < ageInput.length; i++) {
-      ageInput[i].value = "" + jsonAgeArray[i] + "";
+      nameInput[i].value = "" + participantsArr[i][0] + "";
+      ageInput[i].value = "" + participantsArr[i][1] + "";
+
     }
 
   }else{
     createParticipant();
   }
 }
+var removeBtn = document.getElementsByClassName('button');
+
 function removeParticipant(){
+  console.log("clicked");
+  console.log(participantsArr);
+
+  var thisClassName = this.className;
+
+  var classOfThis = document.getElementsByClassName(thisClassName);
+
+  for (var i = 0; i < classOfThis.length; i++) {
+    console.log(classOfThis.length,participantsArr[i]);
+  }
 
 }
 // creates template for participants
@@ -96,9 +101,8 @@ function createParticipant(){
   removeBtn.setAttribute("class","removeBtn");
   removeBtn.innerText = 'remove';
   removeBtn.addEventListener('click',removeParticipant,false);
+  newParticipant.appendChild(removeBtn);
 
-  // newParticipant.appendChild(removeBtn);
-  // newParticipant.innerHTML = removeBtn;
   container.appendChild(newParticipant);
 }
 
@@ -114,24 +118,28 @@ function storeParticipants() {
 
   getParticipants();
 
-  var participants = {};
+  var participantStr;
+  var participantArr = [];
+  var collectionArr = [];
 
   for (var i = 0; i < participant.length; i++) {
 
     var participantName = participant[i].querySelectorAll(".input-name")[0].value;
     var participantAge = participant[i].querySelectorAll(".input-age")[0].value;
-    var participantMarkup = participant[i].outerHTML;
-    var participantX = "participant"+i+"";
 
-    participants[participantX] = {"id" : ""+i+"", "name": participantName, "age": participantAge, "markup" : participantMarkup };
+    participantStr = participantName +"|"+ participantAge;
+
+    participantArr.push(participantStr);
 
   }
 
-  var participantsStr = JSON.stringify(participants);
+  for (var i = 0; i < participantArr.length; i++) {
 
-  console.log(participantsStr);
+    collectionArr.push(participantArr[i]);
 
-  carrier.value = participantsStr;
+  }
+
+  carrier.value = collectionArr;
 
   localStorage.setItem("carrierValue", carrier.value);
 
@@ -139,9 +147,13 @@ function storeParticipants() {
 
   location.reload();
 }
-//
-window.onload = showParticipants();
+function setParticipants(){
 
-for (var i = 0; i < array.length; i++) {
-  array[i]
+  
 }
+//
+
+(function() {
+  'use strict';
+  showParticipants();
+}());
